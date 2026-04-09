@@ -8,6 +8,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "Добро пожаловать в Hexlet Spring Blog!";
+        return "Привет! Это мой первый Spring Boot проект!";
     }
 }
