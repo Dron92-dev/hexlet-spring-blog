@@ -10,4 +10,9 @@ public class HomeController {
     public String home() {
         return "Привет! Это мой первый Spring Boot проект!";
     }
+
+    @GetMapping("/about")
+    public String about() {
+        return "This is simple Spring blog!";
+    }
 }
