@@ -3,6 +3,7 @@ package io.hexlet.springblog;
 import io.hexlet.springblog.model.Post;
 import jakarta.validation.Valid;
 import org.springframework.boot.SpringApplication;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -16,24 +17,23 @@ public class PostController {
     private List<Post> posts = new ArrayList<Post>();
     private Long nextId = 1L;
 
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-
     @GetMapping
-    public List<Post> index() {
-        return posts;
+    public ResponseEntity<List<Post>> index() {
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(posts.size()))
+                .body(posts);
     }
 
     @GetMapping("/{id}")
-    public Optional<Post> show(@PathVariable Long id) {
-        return posts.stream()
+    public ResponseEntity<Post> show(@PathVariable Long id) {
+        var post = posts.stream()
                 .filter(p -> p.getId().equals(id))
                 .findFirst();
+        return ResponseEntity.of(post);
     }
 
     @PostMapping
-    public Post create(@Valid @RequestBody Post post) {
+    public ResponseEntity<Post> create(@Valid @RequestBody Post post) {
         post.setId(nextId);
         nextId++;
 
@@ -42,28 +42,32 @@ public class PostController {
         }
 
         posts.add(post);
-        return post;
+        return ResponseEntity.status(201).body(post);
     }
 
     @PutMapping("/{id}")
-    public Post update(@PathVariable Long id, @RequestBody Post data) {
+    public ResponseEntity<Post> update(@PathVariable Long id, @Valid @RequestBody Post data) {
         var maybePost = posts.stream()
                 .filter(p -> p.getId().equals(id))
                 .findFirst();
 
-        if (maybePost.isPresent()) {
-            var post = maybePost.get();
-            post.setTitle(data.getTitle());
-            post.setContent(data.getContent());
-            post.setAuthor(data.getAuthor());
-            post.setCreatedAt(data.getCreatedAt());
+        if (maybePost.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
-
-        return data;
+        var post = maybePost.get();
+        post.setTitle(data.getTitle());
+        post.setContent(data.getContent());
+        post.setAuthor(data.getAuthor());
+        return ResponseEntity.ok(post);
     }
 
     @DeleteMapping("/{id}")
-    public void destroy(@PathVariable Long id) {
-        posts.removeIf(p -> p.getId().equals(id));
+    public ResponseEntity<Void> destroy(@PathVariable Long id) {
+        var removed = posts.removeIf(p -> p.getId().equals(id));
+
+        if (!removed) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.noContent().build();
     }
 }
