@@ -1,18 +1,17 @@
-package io.hexlet.springblog;
+package io.hexlet.springblog.controller;
 
 import io.hexlet.springblog.model.Post;
 import jakarta.validation.Valid;
-import org.springframework.boot.SpringApplication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/api/posts")
 public class PostController {
     private List<Post> posts = new ArrayList<Post>();
     private Long nextId = 1L;
