@@ -1,16 +1,27 @@
 package io.hexlet.springblog.model;
 
 import java.time.LocalDateTime;
+
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
+@Entity
+@Table(name = "posts")
 public class Post {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotBlank
+    @Column(nullable = false)
     private String title;
+
     @NotBlank
+    @Column(nullable = false, length = 5000)
     private String content;
-    private String author;
-    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private boolean published;
 
     public Post() {
     }
@@ -39,19 +50,11 @@ public class Post {
         this.content = content;
     }
 
-    public String getAuthor() {
-        return author;
+    public boolean isPublished() {
+        return published;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setPublished(boolean published) {
+        this.published = published;
     }
 }
