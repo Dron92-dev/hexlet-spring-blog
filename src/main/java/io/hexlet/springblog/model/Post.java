@@ -12,11 +12,11 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Заголовок не должен быть пустым")
     @Column(nullable = false)
     private String title;
 
-    @NotBlank
+    @NotBlank(message = "Содержимое не должно быть пустым")
     @Column(nullable = false, length = 5000)
     private String content;
 

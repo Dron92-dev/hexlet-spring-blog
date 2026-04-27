@@ -1,5 +1,6 @@
 package io.hexlet.springblog.controller;
 
+import io.hexlet.springblog.exception.ResourceNotFoundException;
 import io.hexlet.springblog.model.Post;
 import io.hexlet.springblog.repository.PostRepository;
 import jakarta.validation.Valid;
@@ -19,15 +20,17 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<List<Post>> index() {
+        var posts = postRepository.findAll();
         return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(postRepository.findAll().size()))
-                .body(postRepository.findAll());
+                .header("X-Total-Count", String.valueOf(posts.size()))
+                .body(posts);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Post> show(@PathVariable Long id) {
-        var post = postRepository.findById(id);
-        return ResponseEntity.of(post);
+        var post = postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id " + id));
+        return ResponseEntity.ok(post);
     }
 
     @PostMapping
@@ -38,25 +41,22 @@ public class PostController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Post> update(@PathVariable Long id, @Valid @RequestBody Post data) {
-        var maybePost = postRepository.findById(id);
+        var post = postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id " + id));
 
-        if (maybePost.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        var post = maybePost.get();
         post.setTitle(data.getTitle());
         post.setContent(data.getContent());
         post.setPublished(data.isPublished());
 
-        var savedPost = postRepository.save(post);
-        return ResponseEntity.ok(savedPost);
+        var updatedPost = postRepository.save(post);
+        return ResponseEntity.ok(updatedPost);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> destroy(@PathVariable Long id) {
-        if (!postRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
+        var post = postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id " + id));
+        postRepository.delete(post);
         return ResponseEntity.noContent().build();
     }
 }

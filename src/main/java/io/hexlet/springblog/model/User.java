@@ -13,16 +13,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Имя не должно быть пустым")
     @Column(nullable = false)
     private String firstName;
 
-    @NotBlank
+    @NotBlank(message = "Фамилия не должна быть пустой")
     @Column(nullable = false)
     private String lastName;
 
-    @NotBlank
-    @Email
+    @NotBlank(message = "Email не должен быть пустым")
+    @Email(message = "Некорректный формат email")
     @Column(nullable = false, unique = true)
     private String email;
 

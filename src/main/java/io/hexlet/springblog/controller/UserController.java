@@ -1,5 +1,6 @@
 package io.hexlet.springblog.controller;
 
+import io.hexlet.springblog.exception.ResourceNotFoundException;
 import io.hexlet.springblog.model.User;
 import io.hexlet.springblog.repository.UserRepository;
 import jakarta.validation.Valid;
@@ -18,15 +19,17 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
+        var users = userRepository.findAll();
         return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(userRepository.findAll().size()))
-                .body(userRepository.findAll());
+                .header("X-Total-Count", String.valueOf(users.size()))
+                .body(users);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUser(@PathVariable Long id) {
-        var post = userRepository.findById(id);
-        return ResponseEntity.of(post);
+        var user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping
@@ -37,26 +40,22 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<User> update(@PathVariable Long id, @Valid @RequestBody User data) {
-        var maybeUser = userRepository.findById(id);
+        var user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
-        if (maybeUser.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        var user = maybeUser.get();
         user.setFirstName(data.getFirstName());
         user.setLastName(data.getLastName());
         user.setEmail(data.getEmail());
         user.setBirthday(data.getBirthday());
 
-        var savedUser = userRepository.save(user);
-        return ResponseEntity.ok(savedUser);
+        var updatedUser = userRepository.save(user);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        if (!userRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
+        userRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         userRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
