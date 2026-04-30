@@ -4,8 +4,12 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "posts")
 public class Post {
     @Id
@@ -22,6 +26,13 @@ public class Post {
 
     @Column(nullable = false)
     private boolean published;
+
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     public Post() {
     }
@@ -56,5 +67,13 @@ public class Post {
 
     public void setPublished(boolean published) {
         this.published = published;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }
