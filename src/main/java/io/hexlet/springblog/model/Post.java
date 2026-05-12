@@ -27,6 +27,9 @@ public class Post {
     @Column(nullable = false)
     private boolean published;
 
+    @ManyToOne
+    private User user;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -75,5 +78,8 @@ public class Post {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUser(User user) {
     }
 }
